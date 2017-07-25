@@ -1,8 +1,5 @@
 # DuelBot
 This cisco spark chatbot helps users learn using flashcards. Using pledges, spaced repetitions and games, it keeps users engaged.
-## Try it out
-
-You can try out the chat bot by using its email address "duelbot@sparkbot.io" on Cisco Spark!
 
 ## Inspiration
 
