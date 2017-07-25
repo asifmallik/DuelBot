@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <title>Create a new set</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Angular Material style sheet -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <style>
+        ng-md-icon svg{
+            fill: #999;
+        }
+    </style>
+</head>
+<body ng-app="DuelBotCreateApp" ng-cloak>
+
+    <div ng-controller="CreateCtrl">
+        <h1>Create a new set</h1>
+        <md-input-container flex="95" class="md-block">
+        <label>Set Name</label>
+        <input ng-model="name">
+      </md-input-container>
+        <div layout-align="center" layout-wrap layout="row">
+            <md-card ng-repeat="card in cards track by $index" flex="30" flex-sm="45" flex-xs="100">
+                <md-card-content flex="100" class="flex flex-col">
+                    <md-input-container class="md-block">
+                    <label>Front</label>
+                    <input ng-model="card.front">
+                  </md-input-container>
+                  <md-input-container class="md-block">
+                  <label>Back</label>
+                  <input ng-model="card.back">
+                </md-input-container>
+                <div layout="row"  ng-repeat="answer in card.answers track by $index">
+                    <md-input-container flex="80" class="md-block">
+                    <label>Answer {{$index+1}}</label>
+                    <input ng-model="answer.answer">
+                  </md-input-container>
+                  <div flex="20">
+                      <md-button ng-click="deleteAnswer(card, $index)" class="md-icon-button md-accent" aria-label="Favorite">
+                         <ng-md-icon style="color: #ccc" icon="delete"></ng-md-icon>
+                       </md-button>
+                  </div>
+
+                </div>
+
+                </md-card-content>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-click="addAnswer(card)">Add answer</md-button>
+                    <md-button ng-click="deleteCard($index)">Delete</md-button>
+                </md-card-actions>
+            </md-card>
+        </div>
+        <div layout="row" layout-align="end center">
+            <md-button ng-click="fill()" class="md-primary">Fill</md-button>
+            <md-button ng-click="addCard()" class="md-primary">Add New Card</md-button>
+            <md-button ng-click="submit()" class="md-primary">Submit</md-button>
+        </div>
+    </div>
+
+    <!-- Angular Material requires Angular.js Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-material-icons/0.7.1/angular-material-icons.min.js"></script>
+    <!-- Angular Material Library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+
+    <!-- Your application bootstrap  -->
+    <script type="text/javascript">
+        var app = angular.module('DuelBotCreateApp', ['ngMaterial', 'ngMdIcons'],function($locationProvider){
+            $locationProvider.html5Mode({
+                enabled: true,
+                requireBase: false
+            });
+        });
+        app.config(function ($httpProvider, $httpParamSerializerJQLikeProvider){
+            $httpProvider.defaults.transformRequest.unshift($httpParamSerializerJQLikeProvider.$get());
+            $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=utf-8';
+        });
+
+        app.controller('CreateCtrl', ['$scope', '$http', '$location', function($scope, $http, $location){
+            $scope.cards = [{
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            },
+            {
+                front: "",
+                back: "",
+                answers: [{answer: ""}]
+            }];
+            $scope.addAnswer = function(card){
+                card.answers.push({
+                    answer: ""
+                });
+            }
+            $scope.addCard = function(){
+                $scope.cards.push({
+                    front: "",
+                    back: "",
+                    answers: [{answer: ""}]
+                });
+            }
+            $scope.deleteCard = function(index){
+                if($scope.cards.length == 1) return;
+                $scope.cards.splice(index, 1);
+            }
+            $scope.deleteAnswer = function(card, index){
+                if(card.answers.length == 1) return;
+                card.answers.splice(index, 1);
+            }
+            $scope.submit = function(){
+                var path = $location.path().split('/');
+                var cardsData = [];
+                for(var i = 0; i < $scope.cards.length; i++){
+                    cardsData.push({});
+                    cardsData[i].answers = $scope.cards[i].answers.map(function(answer){
+                        return answer.answer;
+                    });
+                    cardsData[i].front = $scope.cards[i].front;
+                    cardsData[i].back = $scope.cards[i].back;
+                }
+                $http.post('/create', {
+                    name: $scope.name,
+                    roomId: path[2],
+                    token: path[3],
+                    cards: JSON.stringify(cardsData)
+                }).success(function(data){
+                    if(data.error){
+                        alert(data.error);
+                    }else{
+                        alert("Successfully created a new set");
+                        $scope.cards = [{
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        },
+                        {
+                            front: "",
+                            back: "",
+                            answers: [{answer: ""}]
+                        }];
+                        $scope.name = "";
+                    }
+                });
+            }
+        }]);
+    </script>
+
+</body>
+</html>
