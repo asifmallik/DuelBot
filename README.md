@@ -26,7 +26,7 @@ The complicated part was getting different rooms to speak to each other. For exa
 This is the first chat bot I wrote so basically I learned how chat bots work and how to use them.
 
 
-##Run
+## Run
 
 In order to run the bot, first install the dependencies
 `npm install node-flint express body-parser`
