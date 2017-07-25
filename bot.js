@@ -25,20 +25,20 @@ flint.messageFormat = 'markdown';
 flint.on('message', function(bot, trigger, id) {
     // flint.debug('"%s" said "%s" in room "%s"', trigger.personEmail, trigger.text, trigger.roomTitle);
     // console.log(trigger);
-    if(trigger.personEmail != config.email){
+    if(trigger.personEmail != config.email){ //this ignores messages from self
         trigger.text = trigger.text.replace(config.botName, "").trim().toLowerCase();
         trigger.raw = trigger.raw.replace(config.botName, "").trim().toLowerCase();
         trigger.args = trigger.text.split(" ");
-        var roomState = states.roomStates[bot.room.id];
-        var promise = states[roomState.id](bot, trigger, roomState);
-        if(promise){
+        var roomState = states.roomStates[bot.room.id]; //Eacg riin gas a roomState
+        var promise = states[roomState.id](bot, trigger, roomState); //each roomState has an id which indicates the main state is is in
+        if(promise){ // if a promise is returned by the state function, roomState is saved only after resolving it
             promise.then(function(){
                 console.log("updated by promise");
                 states.updateState(bot.room.id, roomState);
             });
         }else if(typeof promise === 'boolean' && promise === false){ //when no change is made to roomState
             console.log("not updated");
-        }else{
+        }else{ //when no asynchronous change is made to the roomState
             console.log("updated synchronously");
             states.updateState(bot.room.id, roomState);
         }
